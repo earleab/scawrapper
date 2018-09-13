@@ -23,6 +23,7 @@
 *	06/27/14 [1.0] Included INI file for configuration vs always having to recompile, added logging (a.earle)
 *	08/26/16 [1.1] Added debug flag, version parameter, other minor mods (a.earle)
 *	11/03/16 [1.2] see word doc, added c flags (a.earle)
+*	11/12/18 [1.3] see word doc, added c flags (a.earle)
 *
 *
 *
@@ -43,9 +44,14 @@
 
 #include "ini.h"
 
-#define VERSION "1.2 (3 NOV 2016)"
+#define VERSION "1.3 (13 NOV 2018)"
 #define _LOGGING 1
 #define _USE_QUOTES 0
+
+#define INI_FILE_1 ".//fortify.ini"
+#define INI_FILE_2 "c://fortify//fortify.ini"
+#define INI_FILE_3 "d://fortify//fortify.ini"
+#define INI_FILE_4 "//usr//fortify.ini"
 
 short debug = 1;
 
@@ -149,18 +155,28 @@ int initest(char *exe) {
 int loadini(configuration *config) {
 	int i;
 
-	i = ini_parse("fortify.ini", handler, config);
-	if (i = -1) {
+	i = ini_parse(INI_FILE_1, handler, config);
+	if (i != 0) {
+		// report error
+		printf("Failed to open '%s' with error code of %d\n", INI_FILE_1, i);
 		// try again with another file location
-		i = ini_parse("//fortify//fortify.ini", handler, config);
+		i = ini_parse(INI_FILE_2, handler, config);
 	}
-		if (i = -1) {
+	if (i != 0) {
+		// report error
+		printf("Failed to open '%s' with error code of %d\n", INI_FILE_2, i);
 		// try again with yet another file location
-		i = ini_parse("//usr//fortify.ini", handler, config);
+		i = ini_parse(INI_FILE_3, handler, config);
 	}
-
-	if (i < 0) {
-		printf("Can't load 'fortify.ini'\n");
+	if (i != 0) {
+		// report error
+		printf("Failed to open '%s' with error code of %d\n", INI_FILE_3, i);
+		// try again with yet another file location
+		i = ini_parse(INI_FILE_4, handler, config);
+	}
+	if (i != 0) {
+		// report error
+		printf("Failed to open '%s' with error code of %d\n", INI_FILE_4, i);
 		return 1;
 	}
 
@@ -253,6 +269,8 @@ int main(int argc, char **argv) {
 			i = 0;
 
 			system(line);
+			system("\n");
+			system("sourceanalyzer -v");
 		}
 
 #ifdef REDIRECT
